@@ -19,7 +19,10 @@ class Matriculation extends Model {
 
   // relacionamentos
   static associate(models) {
-    this.belongsTo(models.Student, { foreignKey: 'student_id', as: 'student' });
+    this.belongsTo(models.Student, {
+      foreignKey: 'student_id',
+      as: 'student',
+    });
     this.belongsTo(models.Student, { foreignKey: 'plan_id', as: 'plan' });
   }
 }
