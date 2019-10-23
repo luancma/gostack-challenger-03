@@ -15,5 +15,7 @@ routes.get('/plans', PlanController.index);
 routes.get('/plans/:id', PlanController.show);
 routes.post('/plans', PlanController.store);
 routes.post('/matriculation', MatriculationController.store);
+routes.get('/matriculation', MatriculationController.index);
+routes.put('/matriculation/:id', MatriculationController.update);
 
 export default routes;

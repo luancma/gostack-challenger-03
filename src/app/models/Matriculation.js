@@ -23,7 +23,7 @@ class Matriculation extends Model {
       foreignKey: 'student_id',
       as: 'student',
     });
-    this.belongsTo(models.Student, { foreignKey: 'plan_id', as: 'plan' });
+    this.belongsTo(models.Plan, { foreignKey: 'plan_id', as: 'plan' });
   }
 }
 export default Matriculation;

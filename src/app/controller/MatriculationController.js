@@ -57,6 +57,85 @@ class MatriculationController {
 
     return res.json(matriculation);
   }
+
+  async index(req, res) {
+    const listOfMatriculation = await Matriculation.findAll({
+      attributes: [
+        'id',
+        'student_id',
+        'plan_id',
+        'price',
+        'start_date',
+        'end_date',
+        'canceled_at',
+      ],
+    });
+
+    return res.json(listOfMatriculation);
+  }
+
+  async update(req, res) {
+    const validateMatriculation = await Matriculation.findOne({
+      where: { id: req.params.id },
+    });
+
+    if (!validateMatriculation) {
+      return res.status(400).json({
+        error: 'Matriculation is not valid',
+      });
+    }
+
+    const { plan_id, student_id } = req.body;
+
+    const plan = await Plan.findByPk(plan_id);
+
+    const student = await Student.findByPk(student_id);
+
+    if (!plan || !student) {
+      return res.status(400).json({
+        error: 'Plan or student is not valid',
+      });
+    }
+
+    const price = plan.duration * plan.price;
+
+    const end_date = addMonths(validateMatriculation.start_date, plan.duration);
+
+    let newMatriculation;
+
+    await Matriculation.update(
+      {
+        price,
+        end_date,
+        student_id,
+        plan_id,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    ).then(async () => {
+      newMatriculation = await Matriculation.findOne({
+        where: { id: req.params.id },
+        attributes: ['id', 'price'],
+        include: [
+          {
+            model: Student,
+            as: 'student',
+            attributes: ['email', 'name'],
+          },
+          {
+            model: Plan,
+            as: 'plan',
+            attributes: ['title', 'duration', 'price'],
+          },
+        ],
+      });
+    });
+
+    return res.json({ newMatriculation });
+  }
 }
 
 export default new MatriculationController();
