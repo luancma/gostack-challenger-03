@@ -1,9 +1,11 @@
 import * as Yup from 'yup';
 import Plan from '../models/Plan';
+import User from '../models/User';
 
-class StudentController {
+const validate = async id => User.findByPk(id);
+
+class PlanController {
   async store(req, res) {
-    // Validation with YUP
     const schema = Yup.object().shape({
       title: Yup.string().required(),
       duration: Yup.number().required(),
@@ -13,7 +15,12 @@ class StudentController {
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails' });
     }
-    // ///////////
+
+    if (!validate(req.userId)) {
+      return res
+        .status(400)
+        .json({ error: "You don't have access to do that" });
+    }
 
     const alreadyExists = await Plan.findOne({
       where: { title: req.body.title },
@@ -31,7 +38,6 @@ class StudentController {
   }
 
   async show(req, res) {
-    // Validation with YUP
     const schema = Yup.object().shape({
       id: Yup.number().required(),
     });
@@ -39,9 +45,15 @@ class StudentController {
     if (!(await schema.isValid(req.params))) {
       return res.status(400).json({ error: 'The ID is not valid' });
     }
-    // ///////////
+
+    if (!validate(req.userId)) {
+      return res
+        .status(400)
+        .json({ error: "You don't have access to do that" });
+    }
+
     const findByTitle = await Plan.findOne({
-      where: { id: req.params.id },
+      where: { id: req.params.id, deleted_at: null },
       attributes: ['id', 'title', 'price', 'duration'],
     });
 
@@ -55,12 +67,72 @@ class StudentController {
   }
 
   async index(req, res) {
+    if (!validate(req.userId)) {
+      return res
+        .status(400)
+        .json({ error: "You don't have access to do that" });
+    }
+
     const listOfPlans = await Plan.findAll({
+      where: { deleted_at: null },
+      order: ['duration'],
       attributes: ['id', 'title', 'price', 'duration'],
     });
 
     return res.json({ listOfPlans });
   }
+
+  async delete(req, res) {
+    const schema = Yup.object().shape({
+      id: Yup.number().required(),
+    });
+
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({ error: 'The ID is not valid' });
+    }
+
+    if (!validate(req.userId)) {
+      return res
+        .status(400)
+        .json({ error: "You don't have access to do that" });
+    }
+
+    const plan = await Plan.findByPk(req.params.id);
+
+    if (!plan) {
+      return res.status(400).json({ error: 'The ID is not valid' });
+    }
+
+    plan.deleted_at = new Date();
+
+    await plan.save();
+
+    return res.json(plan);
+  }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      id: Yup.number().required(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    if (!validate(req.userId)) {
+      return res
+        .status(400)
+        .json({ error: "You don't have access to do that" });
+    }
+
+    const plan = await Plan.findByPk(req.params.id);
+
+    const { title, duration, price } = req.body;
+
+    await plan.update(req.body);
+
+    return res.json({ title, duration, price });
+  }
 }
 
-export default new StudentController();
+export default new PlanController();
