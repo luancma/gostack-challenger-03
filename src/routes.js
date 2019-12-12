@@ -11,9 +11,13 @@ const routes = new Router();
 routes.post('/sessions', SessionController.store);
 routes.use(authMiddleware);
 routes.post('/students', StudentController.store);
+
 routes.get('/plans', PlanController.index);
 routes.get('/plans/:id', PlanController.show);
+routes.delete('/plans/:id', PlanController.delete);
+routes.put('/plans/:id', PlanController.update);
 routes.post('/plans', PlanController.store);
+
 routes.post('/matriculation', MatriculationController.store);
 routes.get('/matriculation', MatriculationController.index);
 routes.put('/matriculation/:id', MatriculationController.update);
