@@ -1,3 +1,4 @@
+/* eslint-disable no-cond-assign */
 import * as Yup from 'yup';
 import Plan from '../models/Plan';
 import User from '../models/User';
@@ -135,9 +136,15 @@ class StudentController {
 
     const plan = await Plan.findByPk(req.params.id);
 
-    await plan.update(req.body);
+    if ((plan.title = req.body.title)) {
+      return res.status(403).json({
+        error: 'This name is already in use',
+      });
+    }
 
     const { title, price, duration } = plan;
+
+    await plan.update(req.body);
 
     return res.status(200).json({
       title,
