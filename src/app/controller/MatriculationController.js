@@ -59,7 +59,12 @@ class MatriculationController {
     await Mail.sendMail({
       to: `${student.name} <${student.email}>`,
       subject: 'Matrícula criada',
-      text: 'Sua matrícula foi gerada com sucesso',
+      template: 'create',
+      context: {
+        userName: student.name,
+        startDate: start_date,
+        endDate: end_date,
+      },
     });
 
     return res.json(matriculation);
