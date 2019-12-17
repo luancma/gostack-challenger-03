@@ -3,6 +3,7 @@ import { parseISO, isToday, isBefore, addMonths } from 'date-fns';
 import Matriculation from '../models/Matriculation';
 import Plan from '../models/Plan';
 import Student from '../models/Student';
+import Mail from '../../lib/Mail';
 
 class MatriculationController {
   async store(req, res) {
@@ -53,6 +54,12 @@ class MatriculationController {
       start_date,
       end_date,
       price,
+    });
+
+    await Mail.sendMail({
+      to: `${student.name} <${student.email}>`,
+      subject: 'Matrícula criada',
+      text: 'Sua matrícula foi gerada com sucesso',
     });
 
     return res.json(matriculation);

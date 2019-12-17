@@ -17,7 +17,6 @@ class Matriculation extends Model {
     return this;
   }
 
-  // relacionamentos
   static associate(models) {
     this.belongsTo(models.Student, {
       foreignKey: 'student_id',
